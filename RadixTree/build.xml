@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project basedir="." default="build" name="RadixTree">
+    <property environment="env"/>
+
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.5"/>
+    <property name="source" value="1.5"/>
+	
+	<property name="dist" value="dist"/>
+    <property name="build" value="build"/>
+    <property name="junit.output.dir" value="${build}/junit"/>
+	<property name="classes.output.dir" value="${build}/classes"/>
+	<property name="lib.dir" value="lib"/>
+	
+    <path id="project.complie.classpath">
+        <pathelement location="${lib.dir}/junit-4.4.jar"/>
+    </path>
+
+    <target name="clean">
+        <delete dir="build" failonerror="false"/>
+    	<delete dir="dist" failonerror="false"/>
+    </target>
+	
+	<target name="init" depends="clean">
+        <mkdir dir="${build}"/>
+		<mkdir dir="${dist}"/>
+    </target>
+	
+    <target name="build" depends="init">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+
+    	<mkdir dir="${classes.output.dir}"/>
+    	    	
+        <javac debug="true" debuglevel="${debuglevel}" destdir="${classes.output.dir}" source="${source}" target="${target}">
+            <src path="src"/>
+        	<src path="test"/>
+            <classpath refid="project.complie.classpath"/>
+        </javac>
+    	
+    	<jar destfile="${build}/RadixTree.jar" basedir="${classes.output.dir}" excludes="**/*Test.class"/>
+    	<jar destfile="${build}/RadixTreeTest.jar" basedir="${classes.output.dir}" includes="**/*Test.class" />
+    	
+    	<copy todir="${dist}" file="${build}/RadixTree.jar"/>
+    </target>
+
+    <target name="test" depends="build">
+    	<mkdir dir="${junit.output.dir}"/>
+    	
+        <junit fork="yes" printsummary="yes">
+            <classpath refid="project.complie.classpath"/>
+        	<classpath>
+        		<pathelement path="${build}/RadixTree.jar"/>
+        		<pathelement path="${build}/RadixTreeTest.jar"/>
+        	</classpath>
+            <formatter type="xml"/>
+            <test name="ds.tree.test.RadixTreeImplTest" todir="${junit.output.dir}"/>
+        </junit>
+    	
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
+    </target>
+            	
+    <target name="doc">
+		<mkdir dir="${dist}/doc"/>
+    	<mkdir dir="${dist}/doc"/>
+		<javadoc
+		   destdir="${dist}/doc"
+		   author="true"
+		   version="true"
+		   use="true"
+		   windowtitle="Radix Tree API">
+		
+			<fileset dir="src">
+				<include name="ds/tree/**"/>
+			</fileset>
+			<fileset dir="test">
+				<include name="ds/tree/**"/>
+			</fileset>
+			
+			<doctitle><![CDATA[<h1>Radix Tree</h1>]]></doctitle>
+			<bottom><![CDATA[<i>Copyright &#169; 2000 Tahseen Ur Rehman. All Rights Reserved.</i>]]></bottom>
+			<tag name="todo" scope="all" description="To do:"/>
+			<link offline="true" href="http://java.sun.com/j2se/1.5.0/docs/api/" packagelistLoc="${build}"/>
+		</javadoc>
+    </target>
+</project>
