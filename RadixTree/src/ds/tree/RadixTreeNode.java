@@ -84,4 +84,10 @@ class RadixTreeNode<T> {
     public void setChildern(List<RadixTreeNode<T>> childern) {
         this.childern = childern;
     }
+    
+    @Override
+    public String toString() {
+		return key;
+    	
+    }
 }

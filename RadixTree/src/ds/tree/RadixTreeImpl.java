@@ -42,7 +42,7 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
     protected long size;
 
     /**
-     * Create a Radix Tree with only th edefault node root.
+     * Create a Radix Tree with only the default node root.
      */
     public RadixTreeImpl() {
         root = new RadixTreeNode<T>();
@@ -153,7 +153,12 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
      * @see ds.tree.RadixTree#insert(java.lang.String, java.lang.Object)
      */
     public void insert(String key, T value) throws DuplicateKeyException {
-        insert(key, root, value);
+        try {
+			insert(key, root, value);
+		} catch (DuplicateKeyException e) {
+			// re-throw the exception with 'key' in the message
+			throw new DuplicateKeyException("Duplicate key '" + key + "'");
+		}
         size++;
     }
 
@@ -172,7 +177,7 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
 
         // we are either at the root node
         // or we need to go down the tree
-        if (node.getKey().equals("") == true || (i < keylen && i >= nodelen)) {
+        if (node.getKey().equals("") == true || i == 0 || (i < keylen && i >= nodelen)) {
             boolean flag = false;
             String newText = key.substring(i, keylen);
             for (RadixTreeNode<T> child : node.getChildern()) {
@@ -193,8 +198,43 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
                 node.getChildern().add(n);
             }
         }
-        // we have data need to added as the child of the current node
-        else if (i >= keylen && i < nodelen) {
+        // there is a exact match just make the current node as data node
+        else if (i == keylen && i == nodelen) {
+            if (node.isReal() == true) {
+                throw new DuplicateKeyException("Duplicate key");
+            }
+
+            node.setReal(true);
+            node.setValue(value);
+        }
+        // This node need to be splitted as the key to be inserted
+        // is a prefix of the current node key
+        else if (i > 0 && i < nodelen) {
+            RadixTreeNode<T> n1 = new RadixTreeNode<T>();
+            n1.setKey(node.getKey().substring(i, nodelen));
+            n1.setReal(node.isReal());
+            n1.setValue(node.getValue());
+            n1.setChildern(node.getChildern());
+
+            node.setKey(key.substring(0, i));
+            node.setReal(false);
+            node.setChildern(new ArrayList<RadixTreeNode<T>>());
+            node.getChildern().add(n1);
+            
+            if(i < keylen) {
+	            RadixTreeNode<T> n2 = new RadixTreeNode<T>();
+	            n2.setKey(key.substring(i, keylen));
+	            n2.setReal(true);
+	            n2.setValue(value);
+	            
+	            node.getChildern().add(n2);
+            } else {
+            	node.setValue(value);
+                node.setReal(true);
+            }
+        }        
+        // this key need to be added as the child of the current node
+        else {
             RadixTreeNode<T> n = new RadixTreeNode<T>();
             n.setKey(node.getKey().substring(i, nodelen));
             n.setChildern(node.getChildern());
@@ -206,35 +246,6 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
             node.setValue(value);
 
             node.getChildern().add(n);
-        }
-        // there is a exact match just make the current node as data node
-        else if (i == keylen && i == nodelen) {
-            if (node.isReal() == true) {
-                throw new DuplicateKeyException("Duplicate key");
-            }
-
-            node.setReal(true);
-            node.setValue(value);
-        }
-        // This node need to be splitted as the key to be intserted
-        // is a prefix of the current node key
-        else if (i < keylen && i < nodelen) {
-            RadixTreeNode<T> n1 = new RadixTreeNode<T>();
-            n1.setKey(node.getKey().substring(i, nodelen));
-            n1.setReal(node.isReal());
-            n1.setValue(node.getValue());
-            n1.setChildern(node.getChildern());
-
-            RadixTreeNode<T> n2 = new RadixTreeNode<T>();
-            n2.setKey(key.substring(i, keylen));
-            n2.setReal(true);
-            n2.setValue(value);
-
-            node.setKey(key.substring(0, i));
-            node.setReal(false);
-            node.setChildern(new ArrayList<RadixTreeNode<T>>());
-            node.getChildern().add(n1);
-            node.getChildern().add(n2);
         }
     }
 

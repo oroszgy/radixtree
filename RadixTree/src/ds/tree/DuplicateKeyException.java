@@ -30,7 +30,7 @@ package ds.tree;
  * @author Tahseen Ur Rehman 
  * email: tahseen.ur.rehman {at.no.spam} gmail.com 
  */
-public class DuplicateKeyException extends Exception
+public class DuplicateKeyException extends RuntimeException
 {
 	private static final long serialVersionUID = 3141795907493885706L;
 

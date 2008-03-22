@@ -54,14 +54,14 @@ public class RadixTreeImplTest {
         } catch (DuplicateKeyException e) {
             Assert.fail("Found a duplicate when no duplicated expected");
         }
-
+        
         boolean result = false;
         try {
             trie.insert("apple", "apple2");
         } catch (DuplicateKeyException e) {
             result = true;
         }
-
+        
         Assert.assertTrue(result);
 
         Assert.assertEquals(trie.find("apple"), "apple");
@@ -70,6 +70,33 @@ public class RadixTreeImplTest {
         Assert.assertEquals(trie.find("bath"), "bath");
         Assert.assertEquals(trie.find("banana"), "banana");
     }
+    
+    @Test
+	public void testInsert2() {
+		RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
+
+		try {
+			trie.insert("xbox 360", "xbox 360");
+			trie.insert("xbox", "xbox");
+			trie.insert("xbox 360 games", "xbox 360 games");
+			trie.insert("xbox games", "xbox games");
+		} catch (DuplicateKeyException e) {
+			Assert.fail("Found a duplicate when no duplicated expected");
+		}
+		
+		try {
+			trie.insert("xbox xbox 360", "xbox xbox 360");
+			trie.insert("xbox xbox", "xbox xbox");
+			trie.insert("xbox 360 xbox games", "xbox 360 xbox games");
+			trie.insert("xbox games 360", "xbox games 360");
+			trie.insert("xbox 360 360", "xbox 360 360");
+			trie.insert("xbox 360 xbox 360", "xbox 360 xbox 360");
+			trie.insert("360 xbox games 360", "360 xbox games 360");
+			trie.insert("xbox xbox 361", "xbox xbox 361");
+		} catch (DuplicateKeyException e) {
+			Assert.fail("Found a duplicate when no duplicated expected");
+		}
+	}
 
     @Test
     public void testDelete() {
