@@ -33,7 +33,7 @@ import java.util.Queue;
  * Implementation for Radix tree {@link RadixTree}
  * 
  * @author Tahseen Ur Rehman 
- * email: tahseen.ur.rehman {at.no.spam} gmail.com 
+ * email: tahseen.ur.rehman {at.spam.me.not} gmail.com 
  */
 public class RadixTreeImpl<T> implements RadixTree<T> {
     

@@ -31,7 +31,7 @@ import java.util.List;
  * Represents a node of a Radix tree {@link RadixTreeImpl}
  * 
  * @author Tahseen Ur Rehman
- * @email tahseen.ur.rehman {at.no.spam} gmail.com
+ * @email tahseen.ur.rehman {at.spam.me.not} gmail.com
  * @param <T>
  */
 class RadixTreeNode<T> {

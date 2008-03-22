@@ -1,0 +1,16 @@
+Directory Structure 
+===================
+
+src      - Source code 
+test     - Junit tests 
+dist     - Binaries (Jar file)
+dist/doc - Java docs
+lib      - Dependencies (Currently only depend on Junit for unit tests)
+
+Ant Target
+==========
+
+ant build - Build the project
+ant clean - clean the build
+ant test  - run Junit tests
+ant doc   - Generate Java docs
