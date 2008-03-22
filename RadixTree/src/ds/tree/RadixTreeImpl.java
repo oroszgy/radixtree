@@ -89,8 +89,8 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
 
                 // if it is a real node
                 if (delete) {
-                    // If there no childern of the node we need to
-                    // delete it from the its parnet childern list
+                    // If there no children of the node we need to
+                    // delete it from the its parent children list
                     if (node.getChildern().size() == 0) {
                         Iterator<RadixTreeNode<T>> it = parent.getChildern()
                                 .iterator();
@@ -157,11 +157,19 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
 			insert(key, root, value);
 		} catch (DuplicateKeyException e) {
 			// re-throw the exception with 'key' in the message
-			throw new DuplicateKeyException("Duplicate key '" + key + "'");
+			throw new DuplicateKeyException("Duplicate key: '" + key + "'");
 		}
         size++;
     }
 
+    /**
+     * Recursively insert the key in the radix tree.
+     * 
+     * @param key The key to be inserted
+     * @param node The current node
+     * @param value The value associated with the key 
+     * @throws DuplicateKeyException If the key already exists in the database.
+     */
     private void insert(String key, RadixTreeNode<T> node, T value)
             throws DuplicateKeyException {
         int i = 0;
@@ -351,7 +359,7 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
 
     /**
      * recursively visit the tree based on the supplied "key". calls the Visitor
-     * for the node those key metches the given prefix
+     * for the node those key matches the given prefix
      * 
      * @param prefix
      *            The key o prefix to search in the tree
