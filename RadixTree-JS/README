@@ -1,0 +1,7 @@
+Directory Structure 
+===================
+
+lib              - Implmentation of the Radix tree in javascript
+test             - test for the code. To run test use testRunner.html
+example.html     - An example of using the radix tree
+

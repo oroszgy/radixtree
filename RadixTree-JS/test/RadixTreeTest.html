@@ -1,0 +1,145 @@
+<html>
+<head>
+<title>Test Page for RadixTree.js</title>
+<script language="javascript" src="app/jsUnitCore.js"></script>
+<script language="javascript" src="../lib/RadixTree.js"></script>
+</head>
+<body>
+<script language="javascript">
+    function testSimpleInsert() {
+    	tree = new RadixTree();
+    	tree.insert("apple", "apple");
+    	assertEquals("apple", tree.find("apple"));
+    }
+    function testInsertNoOverlap() {
+    	tree = new RadixTree();
+    	tree.insert("apple", "apple");
+    	tree.insert("ball", "ball");
+    	assertEquals("apple", tree.find("apple"));
+    	assertEquals("ball", tree.find("ball"));
+    }
+    function testInsertWithOverlap() {
+    	tree = new RadixTree();
+    	tree.insert("apple", "apple");
+    	tree.insert("apricot", "apricot");
+    	assertEquals("apple", tree.find("apple"));
+    	assertEquals("apricot", tree.find("apricot"));
+    }
+    function testDuplication() {
+    	tree = new RadixTree();
+    	tree.insert("apple", "apple");
+    	try {
+	    	tree.insert("apple", "apple");
+	    	fail();
+	    } catch (e) {
+	    	assertEquals("Duplicate key", e);
+	    }
+    }
+    function testCreatesUnrealNode() {
+    	tree = new RadixTree();
+    	tree.insert("apple", "apple");
+    	tree.insert("ape", "ape");
+    	assertEquals(2, tree.getNumberOfRealNodes());
+    	assertEquals(4, tree.getNumberOfNodes());
+    	assertEquals("undefined", typeof tree.find("ap"));
+    }
+    function testConvertUnrealNodeToRealNode() {
+    	tree = new RadixTree();
+    	tree.insert("apple", "apple");
+    	tree.insert("ape", "ape");
+    	tree.insert("ap", "ap");
+    	assertEquals(3, tree.getNumberOfRealNodes());
+    	assertEquals("ap", tree.find("ap"));
+    }
+    function testStoringWithRightNumberOfNodes() {
+    	tree = new RadixTree();
+    	tree.insert("apple", "apple");
+    	tree.insert("ape", "ape");
+    	tree.insert("applepie", "applepie");
+    	tree.insert("applecrisp", "applecrisp");
+    	tree.insert("argument", "argument");
+    	tree.insert("ball", "ball");
+    	tree.insert("ballroom", "ballroom");
+    	tree.insert("balance", "balance");
+    	tree.insert("balancing", "balancing");
+    	tree.insert("cat", "cat");
+    	
+    	// root node
+    	// a
+    	// a-p
+    	// a-p-e (+)
+    	// a-p-ple (+)
+    	// a-p-ple-crisp (+)
+    	// a-p-ple-pie (+)
+    	// a-rgument (+)
+		// bal
+		// bal-l (+)
+		// bal-l-room (+)
+		// bal-anc
+		// bal-anc-e (+)
+		// bal-anc-ing (+)
+    	// cat (+)
+    	assertEquals(15, tree.getNumberOfNodes());
+    	assertEquals(10, tree.getNumberOfRealNodes());
+    }
+    function testSearchLimitGreaterThanResults() {
+    	tree = new RadixTree();
+    	tree.insert("apple", "apple");
+    	tree.insert("applepie", "applepie");
+    	tree.insert("applecrisp", "applecrisp");
+    	tree.insert("application", "application");
+    	tree.insert("appendix", "appendix");
+    	tree.insert("apecrap", "apecrap");
+    	tree.insert("ball", "ball");
+    	
+    	result = tree.search("app", 10);
+    	
+    	assertEquals(5, result.length);
+    	
+    	assertTrue(result.contains("apple"));
+    	assertTrue(result.contains("applepie"));
+    	assertTrue(result.contains("applecrisp"));
+    	assertTrue(result.contains("application"));
+    	assertTrue(result.contains("appendix"));
+    	
+    }
+    function testSearchLimitLessThanResults() {
+    	tree = new RadixTree();
+    	tree.insert("apple", "apple");
+    	tree.insert("applepie", "applepie");
+    	tree.insert("applecrisp", "applecrisp");
+    	tree.insert("application", "application");
+    	tree.insert("appendix", "appendix");
+    	tree.insert("apecrap", "apecrap");
+    	tree.insert("ball", "ball");
+    	
+    	result = tree.search("app", 3);
+    	
+    	assertEquals(3, result.length);
+    	
+    	assertTrue(result.contains("apple"));
+    	assertTrue(result.contains("applepie"));
+    	assertTrue(result.contains("applecrisp"));
+    }
+</script>
+<!-- 
+//    function testSearchWithWildcard() {
+//    	tree = new RadixTree();
+//    	tree.insert("apple", "apple");
+//    	tree.insert("applepie", "applepie");
+//    	tree.insert("applecrisp", "applecrisp");
+//    	tree.insert("application", "application");
+//    	tree.insert("appendix", "appendix");
+//    	tree.insert("apecrap", "apecrap");
+//    	tree.insert("ball", "ball");
+//    	result = tree.search("ap*e", 10);
+//    	assertEquals(5, result.length);
+//    	assertTrue(result.contains("apple"));
+//    	assertTrue(result.contains("applepie"));
+//    	assertTrue(result.contains("applecrisp"));
+//   	assertTrue(result.contains("appendix"));
+//    	assertTrue(result.contains("apecrap"));
+//    }
+ -->
+</body>
+</html>
