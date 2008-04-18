@@ -1,7 +1,9 @@
 /*
 The MIT License
 
-Copyright (c) 2008 Tahseen Ur Rehman
+Copyright (c) 2008 Tahseen Ur Rehman, Javid Jamae
+
+http://code.google.com/p/radixtree/
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -28,25 +30,26 @@ package ds.tree;
  * The visitor interface that is used by {@link RadixTreeImpl} for perfroming
  * task on a searched node.
  * 
- * @author Tahseen Ur Rehman 
- * email: tahseen.ur.rehman {at.spam.me.not} gmail.com 
+ * @author Tahseen Ur Rehman (tahseen.ur.rehman {at.spam.me.not} gmail.com) 
+ * @author Javid Jamae 
  * @param <T>
  */
 public interface Visitor<T> {
     /**
-     * This method gets called by @link RadixTreeImpl#visit(String, Visitor)} 
-     * when it finds a node matching key given to it.
+     * This method gets called by {@link RadixTreeImpl#visit(String, Visitor) visit} 
+     * when it finds a node matching the key given to it.
      * 
-     * @param key The that got matched
-     * @param parent The parent of he node
-     * @param node The matching node
+     * @param key The key that matched the node
+     * @param parent The parent of the node being visited
+     * @param node The node that is being visited
      */
     public void visit(String key, RadixTreeNode<T> parent, RadixTreeNode<T> node);
 
     /**
-     * return any result calcuklated by the visitor.
+     * The visitor can store any type of result object, depending on the context of 
+     * what it is being used for.
      * 
-     * @return
+     * @return The result captured by the visitor.
      */
     public Object getResult();
 }

@@ -1,7 +1,9 @@
 /*
 The MIT License
 
-Copyright (c) 2008 Tahseen Ur Rehman
+Copyright (c) 2008 Tahseen Ur Rehman, Javid Jamae
+
+http://code.google.com/p/radixtree/
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,229 +26,291 @@ THE SOFTWARE.
 
 package ds.tree.test;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import org.junit.Assert;
+import java.util.ArrayList;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import ds.tree.DuplicateKeyException;
 import ds.tree.RadixTreeImpl;
 
 /**
- * Unit test for {@link RadixTreeImpl}
+ * Unit tests for {@link RadixTreeImpl}
  * 
- * @author Tahseen Ur Rehman 
- * email: tahseen.ur.rehman {at.spam.me.not} gmail.com 
+ * @author Tahseen Ur Rehman (tahseen.ur.rehman {at.spam.me.not} gmail.com) 
+ * @author Javid Jamae 
+ * @
  */
 public class RadixTreeImplTest {
+
+    RadixTreeImpl<String> trie; 
+    
+    @Before
+    public void createTree() {
+        trie = new RadixTreeImpl<String>();
+    }
+    
+    @Test
+    public void testSearchForPartialParentAndLeafKeyWhenOverlapExists() {
+        trie.insert("abcd", "abcd");
+        trie.insert("abce", "abce");
+        
+        assertEquals(0, trie.searchPrefix("abe", 10).size());
+        assertEquals(0, trie.searchPrefix("abd", 10).size());
+    }
+    
+    @Test
+    public void testSearchForLeafNodesWhenOverlapExists() {
+        trie.insert("abcd", "abcd");
+        trie.insert("abce", "abce");
+   
+        assertEquals(1, trie.searchPrefix("abcd", 10).size());
+        assertEquals(1, trie.searchPrefix("abce", 10).size());
+    }
+    
+    @Test
+    public void testSearchForStringSmallerThanSharedParentWhenOverlapExists() {
+        trie.insert("abcd", "abcd");
+        trie.insert("abce", "abce");
+   
+        assertEquals(2, trie.searchPrefix("ab", 10).size());
+        assertEquals(2, trie.searchPrefix("a", 10).size());
+    }
+    
+    @Test
+    public void testSearchForStringEqualToSharedParentWhenOverlapExists() {
+        trie.insert("abcd", "abcd");
+        trie.insert("abce", "abce");
+   
+        assertEquals(2, trie.searchPrefix("abc", 10).size());
+    }
+    
     @Test
     public void testInsert() {
         RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
 
-        try {
-            trie.insert("apple", "apple");
-            trie.insert("bat", "bat");
-            trie.insert("ape", "ape");
-            trie.insert("bath", "bath");
-            trie.insert("banana", "banana");
-        } catch (DuplicateKeyException e) {
-            Assert.fail("Found a duplicate when no duplicated expected");
-        }
+        trie.insert("apple", "apple");
+        trie.insert("bat", "bat");
+        trie.insert("ape", "ape");
+        trie.insert("bath", "bath");
+        trie.insert("banana", "banana"); 
         
-        boolean result = false;
-        try {
-            trie.insert("apple", "apple2");
-        } catch (DuplicateKeyException e) {
-            result = true;
-        }
-        
-        Assert.assertTrue(result);
-
-        Assert.assertEquals(trie.find("apple"), "apple");
-        Assert.assertEquals(trie.find("bat"), "bat");
-        Assert.assertEquals(trie.find("ape"), "ape");
-        Assert.assertEquals(trie.find("bath"), "bath");
-        Assert.assertEquals(trie.find("banana"), "banana");
+        assertEquals(trie.find("apple"), "apple");
+        assertEquals(trie.find("bat"), "bat");
+        assertEquals(trie.find("ape"), "ape");
+        assertEquals(trie.find("bath"), "bath");
+        assertEquals(trie.find("banana"), "banana");
     }
     
     @Test
-	public void testInsert2() {
-		RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
+    public void testDuplicatesNotAllowed() {
+        RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
 
-		try {
-			trie.insert("xbox 360", "xbox 360");
-			trie.insert("xbox", "xbox");
-			trie.insert("xbox 360 games", "xbox 360 games");
-			trie.insert("xbox games", "xbox games");
-		} catch (DuplicateKeyException e) {
-			Assert.fail("Found a duplicate when no duplicated expected");
-		}
-		
-		try {
-			trie.insert("xbox xbox 360", "xbox xbox 360");
-			trie.insert("xbox xbox", "xbox xbox");
-			trie.insert("xbox 360 xbox games", "xbox 360 xbox games");
-			trie.insert("xbox games 360", "xbox games 360");
-			trie.insert("xbox 360 360", "xbox 360 360");
-			trie.insert("xbox 360 xbox 360", "xbox 360 xbox 360");
-			trie.insert("360 xbox games 360", "360 xbox games 360");
-			trie.insert("xbox xbox 361", "xbox xbox 361");
-		} catch (DuplicateKeyException e) {
-			Assert.fail("Found a duplicate when no duplicated expected");
-		}
+        trie.insert("apple", "apple");
+
+        try {
+            trie.insert("apple", "apple2");
+            fail("Duplicate should not have been allowed");
+        } catch (DuplicateKeyException e) {
+            assertEquals("Duplicate key: 'apple'", e.getMessage());
+        }
+    }
+    
+    @Test
+	public void testInsertWithRepeatingPatternsInKey() {
+		trie.insert("xbox 360", "xbox 360");
+		trie.insert("xbox", "xbox");
+		trie.insert("xbox 360 games", "xbox 360 games");
+		trie.insert("xbox games", "xbox games");
+		trie.insert("xbox xbox 360", "xbox xbox 360");
+		trie.insert("xbox xbox", "xbox xbox");
+		trie.insert("xbox 360 xbox games", "xbox 360 xbox games");
+		trie.insert("xbox games 360", "xbox games 360");
+		trie.insert("xbox 360 360", "xbox 360 360");
+		trie.insert("xbox 360 xbox 360", "xbox 360 xbox 360");
+		trie.insert("360 xbox games 360", "360 xbox games 360");
+		trie.insert("xbox xbox 361", "xbox xbox 361");
+        
+        assertEquals(12, trie.getSize());
 	}
 
     @Test
-    public void testDelete() {
+    public void testSimpleDelete() {
         RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
-
-        try {
-            trie.insert("apple", "apple");
-            trie.insert("appleshack", "appleshack");
-            trie.insert("appleshackcream", "appleshackcream");
-            trie.insert("applepie", "applepie");
-            trie.insert("ape", "ape");
-        } catch (DuplicateKeyException e) {
-            Assert.fail("Found a duplicate when no duplicated expected");
-        }
-
-        Assert.assertTrue(trie.contains("apple"));
-        Assert.assertTrue(trie.delete("apple"));
-        Assert.assertFalse(trie.contains("apple"));
-
-        Assert.assertTrue(trie.contains("applepie"));
-        Assert.assertTrue(trie.delete("applepie"));
-        Assert.assertFalse(trie.contains("applepie"));
-
-        Assert.assertTrue(trie.contains("appleshack"));
-        Assert.assertTrue(trie.delete("appleshack"));
-        Assert.assertFalse(trie.contains("appleshack"));
-
-        // try to delete "apple" again this should fail
-        Assert.assertFalse(trie.delete("apple"));
-
-        // try to find "ape" and "appleshackcream"
-        Assert.assertTrue(trie.contains("appleshackcream"));
-        Assert.assertTrue(trie.contains("ape"));
-
-        // try to delete "ap" this should fail.
-        Assert.assertFalse(trie.delete("ap"));
-    }
-
-    @Test
-    public void testFind() {
-        RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
-
-        try {
-            trie.insert("apple", "apple");
-            trie.insert("appleshack", "appleshack");
-            trie.insert("appleshackcream", "appleshackcream");
-            trie.insert("applepie", "applepie");
-            trie.insert("ape", "ape");
-        } catch (DuplicateKeyException e) {
-            Assert.fail("Found a duplicate when no duplicated expected");
-        }
-
-        // we shou7ld be able to find all of these
-        Assert.assertNotNull(trie.find("apple"));
-        Assert.assertNotNull(trie.find("appleshack"));
-        Assert.assertNotNull(trie.find("appleshackcream"));
-        Assert.assertNotNull(trie.find("applepie"));
-        Assert.assertNotNull(trie.find("ape"));
-
-        // try to delete "apple" again this should fail
-        Assert.assertNull(trie.find("ap"));
-        Assert.assertNull(trie.find("apple2"));
-        Assert.assertNull(trie.find("appl"));
-        Assert.assertNull(trie.find("app"));
-        Assert.assertNull(trie.find("appples"));
-    }
-
-    @Test
-    public void testContains() {
-        RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
-
-        try {
-            trie.insert("apple", "apple");
-            trie.insert("appleshack", "appleshack");
-            trie.insert("appleshackcream", "appleshackcream");
-            trie.insert("applepie", "applepie");
-            trie.insert("ape", "ape");
-        } catch (DuplicateKeyException e) {
-            Assert.fail("Found a duplicate when no duplicated expected");
-        }
-
-        // we shou7ld be able to find all of these
-        Assert.assertTrue(trie.contains("apple"));
-        Assert.assertTrue(trie.contains("appleshack"));
-        Assert.assertTrue(trie.contains("appleshackcream"));
-        Assert.assertTrue(trie.contains("applepie"));
-        Assert.assertTrue(trie.contains("ape"));
-
-        // try to delete "apple" again this should fail
-        Assert.assertFalse(trie.contains("ap"));
-        Assert.assertFalse(trie.contains("apple2"));
-        Assert.assertFalse(trie.contains("appl"));
-        Assert.assertFalse(trie.contains("app"));
-        Assert.assertFalse(trie.contains("appples"));
-    }
-
-    @Test
-    public void testSearchPrefix() {
-        RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
-
-        try {
-            trie.insert("apple", "apple");
-            trie.insert("appleshack", "appleshack");
-            trie.insert("appleshackcream", "appleshackcream");
-            trie.insert("applepie", "applepie");
-            trie.insert("ape", "ape");
-        } catch (DuplicateKeyException e) {
-            Assert.fail("Found a duplicate when no duplicated expected");
-        }
-
-        ArrayList<String> expected = new ArrayList<String>();
-        expected.add("appleshack");
-        expected.add("applepie");
-        expected.add("apple");
-
-        ArrayList<String> result = trie.searchPrefix("appl", 3);
-        Assert.assertTrue(expected.size() == result.size());
-        Set<String> resultSet = new HashSet<String>(result);
-        for (String key : expected) {
-            Assert.assertTrue(resultSet.contains(key));
-        }
-
-        expected.add("appleshackcream");
-
-        result = trie.searchPrefix("app", 10);
-        Assert.assertTrue(expected.size() == result.size());
-        resultSet = new HashSet<String>(result);
-        for (String key : expected) {
-            Assert.assertTrue(resultSet.contains(key));
-        }
+        trie.insert("apple", "apple");
+        assertTrue(trie.delete("apple"));
     }
     
     @Test
-    public void testGetSize() {
+    public void testCantDeleteSomethingThatDoesntExist() {
         RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
+        assertFalse(trie.delete("apple"));
+    }
 
-        try {
-            trie.insert("apple", "apple");
-            trie.insert("appleshack", "appleshack");
-            trie.insert("appleshackcream", "appleshackcream");
-            trie.insert("applepie", "applepie");
-            trie.insert("ape", "ape");
-        } catch (DuplicateKeyException e) {
-            Assert.fail("Found a duplicate when no duplicated expected");
-        }
+    @Test
+    public void testCantDeleteSomethingThatWasAlreadyDeleted() {
+        RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
+        trie.insert("apple", "apple");
+        trie.delete("apple");
+        assertFalse(trie.delete("apple"));
+    }
+
+    @Test
+    public void testChildrenNotAffectedWhenOneIsDeleted() {
+        RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
+        trie.insert("apple", "apple");
+        trie.insert("appleshack", "appleshack");
+        trie.insert("ape", "ape");
         
-        Assert.assertTrue(trie.getSize() == 5);
+        trie.delete("apple");
+        
+        assertTrue(trie.contains("appleshack"));
+        assertTrue(trie.contains("ape"));
+    }
+    
+    @Test
+    public void testSiblingsNotAffectedWhenOneIsDeleted() {
+        RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
+        trie.insert("apple", "apple");
+        trie.insert("ball", "ball");
+        
+        trie.delete("apple");
+        
+        assertTrue(trie.contains("ball"));
+    }
+    
+    @Test
+    public void testCantDeleteUnrealNode() {
+        RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
+        trie.insert("apple", "apple");
+        trie.insert("ape", "ape");
+        
+        assertFalse(trie.delete("ap"));
+    }
+    
+
+    @Test
+    public void testCantFindRootNode() {
+        assertNull(trie.find(""));
+    }
+
+    @Test
+    public void testFindSimpleInsert() {
+        trie.insert("apple", "apple");
+        assertNotNull(trie.find("apple"));
+    }
+    
+    @Test
+    public void testContainsSimpleInsert() {
+        trie.insert("apple", "apple");
+        assertTrue(trie.contains("apple"));
+    }
+
+    @Test
+    public void testFindChildInsert() {
+        trie.insert("apple", "apple");
+        trie.insert("ape", "ape");
+        trie.insert("appletree", "appletree");
+        trie.insert("appleshackcream", "appleshackcream");
+        assertNotNull(trie.find("appletree"));
+        assertNotNull(trie.find("appleshackcream"));
+        assertNotNull(trie.contains("ape"));
+    }
+    
+    @Test
+    public void testContainsChildInsert() {
+        trie.insert("apple", "apple");
+        trie.insert("ape", "ape");
+        trie.insert("appletree", "appletree");
+        trie.insert("appleshackcream", "appleshackcream");
+        assertTrue(trie.contains("appletree"));
+        assertTrue(trie.contains("appleshackcream"));
+        assertTrue(trie.contains("ape"));
+    }
+
+    @Test
+    public void testCantFindNonexistantNode() {
+        assertNull(trie.find("apple"));
+    }
+
+    @Test
+    public void testDoesntContainNonexistantNode() {
+        assertFalse(trie.contains("apple"));
+    }
+    
+    @Test
+    public void testCantFindUnrealNode() {
+        trie.insert("apple", "apple");
+        trie.insert("ape", "ape");
+        assertNull(trie.find("ap"));
+    }
+
+    @Test
+    public void testDoesntContainUnrealNode() {
+        trie.insert("apple", "apple");
+        trie.insert("ape", "ape");
+        assertFalse(trie.contains("ap"));
+    }
+
+
+    @Test
+    public void testSearchPrefix_LimitGreaterThanPossibleResults() {
+        trie.insert("apple", "apple");
+        trie.insert("appleshack", "appleshack");
+        trie.insert("appleshackcream", "appleshackcream");
+        trie.insert("applepie", "applepie");
+        trie.insert("ape", "ape");
+
+        ArrayList<String> result = trie.searchPrefix("app", 10);
+        assertEquals(4, result.size());
+
+        assertTrue(result.contains("appleshack"));
+        assertTrue(result.contains("appleshackcream"));
+        assertTrue(result.contains("applepie"));
+        assertTrue(result.contains("apple"));
+    }
+    
+    @Test
+    public void testSearchPrefix_LimitLessThanPossibleResults() {
+        trie.insert("apple", "apple");
+        trie.insert("appleshack", "appleshack");
+        trie.insert("appleshackcream", "appleshackcream");
+        trie.insert("applepie", "applepie");
+        trie.insert("ape", "ape");
+
+        ArrayList<String> result = trie.searchPrefix("appl", 3);
+        assertEquals(3, result.size());
+
+        assertTrue(result.contains("appleshack"));
+        assertTrue(result.contains("applepie"));
+        assertTrue(result.contains("apple"));
+    }
+
+    @Test
+    public void testGetSize() {
+        trie.insert("apple", "apple");
+        trie.insert("appleshack", "appleshack");
+        trie.insert("appleshackcream", "appleshackcream");
+        trie.insert("applepie", "applepie");
+        trie.insert("ape", "ape");
+        
+        assertTrue(trie.getSize() == 5);
+    }
+    
+    @Test
+    public void testDeleteReducesSize() {
+        trie.insert("apple", "apple");
+        trie.insert("appleshack", "appleshack");
         
         trie.delete("appleshack");
         
-        Assert.assertTrue(trie.getSize() == 4);
+        assertTrue(trie.getSize() == 1);
     }
 }
