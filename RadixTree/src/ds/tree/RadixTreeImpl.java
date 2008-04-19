@@ -1,7 +1,9 @@
 /*
 The MIT License
 
-Copyright (c) 2008 Tahseen Ur Rehman
+Copyright (c) 2008 Tahseen Ur Rehman, Javid Jamae
+
+http://code.google.com/p/radixtree/
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,8 +34,8 @@ import java.util.Queue;
 /**
  * Implementation for Radix tree {@link RadixTree}
  * 
- * @author Tahseen Ur Rehman 
- * email: tahseen.ur.rehman {at.spam.me.not} gmail.com 
+ * @author Tahseen Ur Rehman (tahseen.ur.rehman {at.spam.me.not} gmail.com)
+ * @author Javid Jamae 
  */
 public class RadixTreeImpl<T> implements RadixTree<T> {
     
@@ -50,10 +52,6 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
         size = 0;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see ds.tree.RadixTree#find(java.lang.String)
-     */
     @SuppressWarnings("unchecked")
     public T find(String key) {
         Visitor<T> visitor = new Visitor<T>() {
@@ -75,10 +73,6 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
         return (T) visitor.getResult();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ds.tree.RadixTree#delete(java.lang.String)
-     */
     public boolean delete(String key) {
         Visitor<T> visitor = new Visitor<T>() {
             boolean delete = false;
@@ -172,22 +166,14 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
      */
     private void insert(String key, RadixTreeNode<T> node, T value)
             throws DuplicateKeyException {
-        int i = 0;
-        int keylen = key.length();
-        int nodelen = node.getKey().length();
 
-        while (i < keylen && i < nodelen) {
-            if (key.charAt(i) != node.getKey().charAt(i)) {
-                break;
-            }
-            i++;
-        }
+        int numberOfMatchingCharacters = node.getNumberOfMatchingCharacters(key);
 
         // we are either at the root node
         // or we need to go down the tree
-        if (node.getKey().equals("") == true || i == 0 || (i < keylen && i >= nodelen)) {
+        if (node.getKey().equals("") == true || numberOfMatchingCharacters == 0 || (numberOfMatchingCharacters < key.length() && numberOfMatchingCharacters >= node.getKey().length())) {
             boolean flag = false;
-            String newText = key.substring(i, keylen);
+            String newText = key.substring(numberOfMatchingCharacters, key.length());
             for (RadixTreeNode<T> child : node.getChildern()) {
                 if (child.getKey().startsWith(newText.charAt(0) + "")) {
                     flag = true;
@@ -207,7 +193,7 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
             }
         }
         // there is a exact match just make the current node as data node
-        else if (i == keylen && i == nodelen) {
+        else if (numberOfMatchingCharacters == key.length() && numberOfMatchingCharacters == node.getKey().length()) {
             if (node.isReal() == true) {
                 throw new DuplicateKeyException("Duplicate key");
             }
@@ -215,23 +201,23 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
             node.setReal(true);
             node.setValue(value);
         }
-        // This node need to be splitted as the key to be inserted
+        // This node need to be split as the key to be inserted
         // is a prefix of the current node key
-        else if (i > 0 && i < nodelen) {
+        else if (numberOfMatchingCharacters > 0 && numberOfMatchingCharacters < node.getKey().length()) {
             RadixTreeNode<T> n1 = new RadixTreeNode<T>();
-            n1.setKey(node.getKey().substring(i, nodelen));
+            n1.setKey(node.getKey().substring(numberOfMatchingCharacters, node.getKey().length()));
             n1.setReal(node.isReal());
             n1.setValue(node.getValue());
             n1.setChildern(node.getChildern());
 
-            node.setKey(key.substring(0, i));
+            node.setKey(key.substring(0, numberOfMatchingCharacters));
             node.setReal(false);
             node.setChildern(new ArrayList<RadixTreeNode<T>>());
             node.getChildern().add(n1);
             
-            if(i < keylen) {
+            if(numberOfMatchingCharacters < key.length()) {
 	            RadixTreeNode<T> n2 = new RadixTreeNode<T>();
-	            n2.setKey(key.substring(i, keylen));
+	            n2.setKey(key.substring(numberOfMatchingCharacters, key.length()));
 	            n2.setReal(true);
 	            n2.setValue(value);
 	            
@@ -244,7 +230,7 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
         // this key need to be added as the child of the current node
         else {
             RadixTreeNode<T> n = new RadixTreeNode<T>();
-            n.setKey(node.getKey().substring(i, nodelen));
+            n.setKey(node.getKey().substring(numberOfMatchingCharacters, node.getKey().length()));
             n.setChildern(node.getChildern());
             n.setReal(node.isReal());
             n.setValue(node.getValue());
@@ -256,11 +242,7 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
             node.getChildern().add(n);
         }
     }
-
-    /*
-     * (non-Javadoc)
-     * @see ds.tree.RadixTree#searchPrefix(java.lang.String, int)
-     */
+    
     public ArrayList<T> searchPrefix(String key, int recordLimit) {
         ArrayList<T> keys = new ArrayList<T>();
 
@@ -297,22 +279,14 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
 
     private RadixTreeNode<T> searchPefix(String key, RadixTreeNode<T> node) {
         RadixTreeNode<T> result = null;
-        int i = 0;
-        int keylen = key.length();
-        int nodelen = node.getKey().length();
 
-        while (i < keylen && i < nodelen) {
-            if (key.charAt(i) != node.getKey().charAt(i)) {
-                break;
-            }
-            i++;
-        }
-
-        if (i == keylen && i <= nodelen) {
+        int numberOfMatchingCharacters = node.getNumberOfMatchingCharacters(key);
+        
+        if (numberOfMatchingCharacters == key.length() && numberOfMatchingCharacters <= node.getKey().length()) {
             result = node;
         } else if (node.getKey().equals("") == true
-                || (i < keylen && i >= nodelen)) {
-            String newText = key.substring(i, keylen);
+                || (numberOfMatchingCharacters < key.length() && numberOfMatchingCharacters >= node.getKey().length())) {
+            String newText = key.substring(numberOfMatchingCharacters, key.length());
             for (RadixTreeNode<T> child : node.getChildern()) {
                 if (child.getKey().startsWith(newText.charAt(0) + "")) {
                     result = searchPefix(newText, child);
@@ -324,10 +298,6 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ds.tree.RadixTree#contains(java.lang.String)
-     */
     public boolean contains(String key) {
         Visitor<T> visitor = new Visitor<T>() {
             boolean result = false;
@@ -371,26 +341,17 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
      */
     private void visit(String prefix, Visitor<T> visitor,
             RadixTreeNode<T> parent, RadixTreeNode<T> node) {
-        int i = 0;
-        int keylen = prefix.length();
-        int nodelen = node.getKey().length();
-
-        // match the prefix with node key
-        while (i < keylen && i < nodelen) {
-            if (prefix.charAt(i) != node.getKey().charAt(i)) {
-                break;
-            }
-            i++;
-        }
+        
+    	int numberOfMatchingCharacters = node.getNumberOfMatchingCharacters(prefix);
 
         // if the node key and prefix match, we found a match!
-        if (i == keylen && i == nodelen) {
+        if (numberOfMatchingCharacters == prefix.length() && numberOfMatchingCharacters == node.getKey().length()) {
             visitor.visit(prefix, parent, node);
         } else if (node.getKey().equals("") == true // either we are at the
                 // root
-                || (i < keylen && i >= nodelen)) { // OR we need to
+                || (numberOfMatchingCharacters < prefix.length() && numberOfMatchingCharacters >= node.getKey().length())) { // OR we need to
             // traverse the childern
-            String newText = prefix.substring(i, keylen);
+            String newText = prefix.substring(numberOfMatchingCharacters, prefix.length());
             for (RadixTreeNode<T> child : node.getChildern()) {
                 // recursively search the child nodes
                 if (child.getKey().startsWith(newText.charAt(0) + "")) {
@@ -431,10 +392,6 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see ds.tree.RadixTree#getSize()
-     */
     public long getSize() {
         return size;
     }
