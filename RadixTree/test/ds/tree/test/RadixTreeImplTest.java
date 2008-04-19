@@ -26,12 +26,7 @@ THE SOFTWARE.
 
 package ds.tree.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 
@@ -94,8 +89,6 @@ public class RadixTreeImplTest {
     
     @Test
     public void testInsert() {
-        RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
-
         trie.insert("apple", "apple");
         trie.insert("bat", "bat");
         trie.insert("ape", "ape");
@@ -107,6 +100,18 @@ public class RadixTreeImplTest {
         assertEquals(trie.find("ape"), "ape");
         assertEquals(trie.find("bath"), "bath");
         assertEquals(trie.find("banana"), "banana");
+    }
+    
+    @Test
+    public void testInsertExistingUnrealNodeConvertsItToReal() {
+    	trie.insert("applepie", "applepie");
+    	trie.insert("applecrisp", "applecrisp");
+    	
+    	assertFalse(trie.contains("apple"));
+    	
+    	trie.insert("apple", "apple");
+    	
+    	assertTrue(trie.contains("apple"));
     }
     
     @Test
@@ -142,10 +147,32 @@ public class RadixTreeImplTest {
 	}
 
     @Test
-    public void testSimpleDelete() {
+    public void testDeleteNodeWithNoChildren() {
         RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
         trie.insert("apple", "apple");
         assertTrue(trie.delete("apple"));
+    }
+    
+    @Test
+    public void testDeleteNodeWithOneChild() {
+        RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
+        trie.insert("apple", "apple");
+        trie.insert("applepie", "applepie");
+        assertTrue(trie.delete("apple"));
+        assertTrue(trie.contains("applepie"));
+        assertFalse(trie.contains("apple"));
+    }
+    
+    @Test
+    public void testDeleteNodeWithMultipleChildren() {
+        RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
+        trie.insert("apple", "apple");
+        trie.insert("applepie", "applepie");
+        trie.insert("applecrisp", "applecrisp");
+        assertTrue(trie.delete("apple"));
+        assertTrue(trie.contains("applepie"));
+        assertTrue(trie.contains("applecrisp"));
+        assertFalse(trie.contains("apple"));
     }
     
     @Test
@@ -167,12 +194,15 @@ public class RadixTreeImplTest {
         RadixTreeImpl<String> trie = new RadixTreeImpl<String>();
         trie.insert("apple", "apple");
         trie.insert("appleshack", "appleshack");
+        trie.insert("applepie", "applepie");
         trie.insert("ape", "ape");
         
         trie.delete("apple");
-        
+
         assertTrue(trie.contains("appleshack"));
+        assertTrue(trie.contains("applepie"));
         assertTrue(trie.contains("ape"));
+        assertFalse(trie.contains("apple"));
     }
     
     @Test
