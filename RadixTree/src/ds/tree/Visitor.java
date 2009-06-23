@@ -31,10 +31,11 @@ package ds.tree;
  * task on a searched node.
  * 
  * @author Tahseen Ur Rehman (tahseen.ur.rehman {at.spam.me.not} gmail.com) 
- * @author Javid Jamae 
- * @param <T>
+ * @author Javid Jamae
+ * @author Dennis Heidsiek 
+ * @param <T,R>
  */
-public interface Visitor<T> {
+public interface Visitor<T, R> {
     /**
      * This method gets called by {@link RadixTreeImpl#visit(String, Visitor) visit} 
      * when it finds a node matching the key given to it.
@@ -51,5 +52,5 @@ public interface Visitor<T> {
      * 
      * @return The result captured by the visitor.
      */
-    public Object getResult();
+    public R getResult();
 }

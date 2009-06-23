@@ -27,6 +27,8 @@ THE SOFTWARE.
 package ds.tree;
 
 import java.util.ArrayList;
+import java.util.Formattable;
+import java.util.Formatter;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -36,8 +38,9 @@ import java.util.Queue;
  * 
  * @author Tahseen Ur Rehman (tahseen.ur.rehman {at.spam.me.not} gmail.com)
  * @author Javid Jamae 
+ * @author Dennis Heidsiek
  */
-public class RadixTreeImpl<T> implements RadixTree<T> {
+public class RadixTreeImpl<T> implements RadixTree<T>, Formattable {
     
     protected RadixTreeNode<T> root;
 
@@ -52,37 +55,29 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
         size = 0;
     }
     
-    @SuppressWarnings("unchecked")
     public T find(String key) {
-        Visitor<T> visitor = new Visitor<T>() {
-            T result = null;
+        Visitor<T,T> visitor = new VisitorImpl<T,T>() {
 
             public void visit(String key, RadixTreeNode<T> parent,
                     RadixTreeNode<T> node) {
-                if (node.isReal())
+                if (node.isReal()) 
                     result = node.getValue();
             }
-
-            public Object getResult() {
-                return result;
-            }
         };
-
+        
         visit(key, visitor);
-
-        return (T) visitor.getResult();
+        
+        return visitor.getResult();
     }
 
     public boolean delete(String key) {
-        Visitor<T> visitor = new Visitor<T>() {
-            boolean delete = false;
-
+        Visitor<T, Boolean> visitor = new VisitorImpl<T, Boolean>(Boolean.FALSE) {
             public void visit(String key, RadixTreeNode<T> parent,
                     RadixTreeNode<T> node) {
-                delete = node.isReal();
+                result = node.isReal();
 
                 // if it is a real node
-                if (delete) {
+                if (result) {
                     // If there no children of the node we need to
                     // delete it from the its parent children list
                     if (node.getChildern().size() == 0) {
@@ -112,7 +107,7 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
             }
 
             /**
-             * Merge a child into its parent node. Opertaion only valid if it is
+             * Merge a child into its parent node. Operation only valid if it is
              * only child of the parent node and parent node is not a real node.
              * 
              * @param parent
@@ -128,18 +123,14 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
                 parent.setChildern(child.getChildern());
             }
 
-            public Object getResult() {
-                return Boolean.valueOf(delete);
-            }
         };
-
-        visit(key, visitor);
-
-        if(((Boolean) visitor.getResult()).booleanValue()) {
-            size--;   
-        }
         
-        return ((Boolean) visitor.getResult()).booleanValue();
+        visit(key, visitor);
+        
+        if(visitor.getResult()) {
+        	size--;
+        }
+        return visitor.getResult().booleanValue();
     }
 
     /*
@@ -299,22 +290,16 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
     }
 
     public boolean contains(String key) {
-        Visitor<T> visitor = new Visitor<T>() {
-            boolean result = false;
-
+        Visitor<T, Boolean> visitor = new VisitorImpl<T,Boolean>(Boolean.FALSE) {
             public void visit(String key, RadixTreeNode<T> parent,
                     RadixTreeNode<T> node) {
                 result = node.isReal();
-            }
-
-            public Object getResult() {
-                return Boolean.valueOf(result);
             }
         };
 
         visit(key, visitor);
 
-        return ((Boolean) visitor.getResult()).booleanValue();
+        return visitor.getResult().booleanValue();
     }
     
     /**
@@ -322,9 +307,10 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
      * @param key The key that need to be visited
      * @param visitor The visitor object
      */
-    public void visit(String key, Visitor<T> visitor) {
-        if (root != null)
+    public <R> void visit(String key, Visitor<T, R> visitor) {
+        if (root != null) {
             visit(key, visitor, null, root);
+        }
     }
 
     /**
@@ -339,7 +325,7 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
      * @param node
      *            The Node from where onward to search
      */
-    private void visit(String prefix, Visitor<T> visitor,
+    private <R> void visit(String prefix, Visitor<T, R> visitor,
             RadixTreeNode<T> parent, RadixTreeNode<T> node) {
         
     	int numberOfMatchingCharacters = node.getNumberOfMatchingCharacters(prefix);
@@ -361,38 +347,58 @@ public class RadixTreeImpl<T> implements RadixTree<T> {
             }
         }
     }
-    
-
-    /**
-     * Display the Trie on console. WARNING! Do not use for large Trie. For
-     * testing purpose only.
-     */
-    @Deprecated
-    public void display() {
-        display(0, root);
-    }
-
-    @Deprecated
-    private void display(int level, RadixTreeNode<T> node) {
-        for (int i = 0; i < level; i++) {
-            System.out.print(" ");
-        }
-        System.out.print("|");
-        for (int i = 0; i < level; i++) {
-            System.out.print("-");
-        }
-
-        if (node.isReal() == true)
-            System.out.println(node.getKey() + "[" + node.getValue() + "]*");
-        else
-            System.out.println(node.getKey());
-
-        for (RadixTreeNode<T> child : node.getChildern()) {
-            display(level + 1, child);
-        }
-    }
 
     public long getSize() {
         return size;
     }
+
+    /**
+     * Display the Trie on console.
+     * 
+     * WARNING! Do not use this for a large Trie, it's for testing purpose only.
+     * @see formatTo
+     */
+    @Deprecated
+    public void display() {
+    	formatNodeTo(new Formatter(System.out), 0, root);
+    }
+
+    @Deprecated
+    private void display(int level, RadixTreeNode<T> node) {
+    	formatNodeTo(new Formatter(System.out), level, node);
+    }
+    
+    /**
+     * WARNING! Do not use this for a large Trie, it's for testing purpose only.
+     */
+    private void formatNodeTo(Formatter f, int level, RadixTreeNode<T> node) {
+        for (int i = 0; i < level; i++) {
+            f.format(" ");
+        }
+        f.format("|");
+        for (int i = 0; i < level; i++) {
+        	f.format("-");
+        }
+
+        if (node.isReal() == true)
+        	f.format("%s[%s]*%n", node.getKey(),  node.getValue());
+        else
+        	f.format("%s%n", node.getKey());
+
+        for (RadixTreeNode<T> child : node.getChildern()) {
+        	formatNodeTo(f, level + 1, child);
+        }		
+	}
+    
+	/**
+	 * Writes a textual representation of this tree to the given formatter.
+	 * 
+	 * Currently, all options are simply ignored.
+	 * 
+     * WARNING! Do not use this for a large Trie, it's for testing purpose only.
+	 */
+	@Override
+	public void formatTo(Formatter formatter, int flags, int width, int precision) {
+		formatNodeTo(formatter, 0, root);	
+	}
 }
