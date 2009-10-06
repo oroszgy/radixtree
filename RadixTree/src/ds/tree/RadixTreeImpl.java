@@ -401,4 +401,46 @@ public class RadixTreeImpl<T> implements RadixTree<T>, Formattable {
 	public void formatTo(Formatter formatter, int flags, int width, int precision) {
 		formatNodeTo(formatter, 0, root);	
 	}
+
+    /**
+     * Complete the a prefix to the point where ambiguity starts.
+     * 
+     *  Example:
+     *  If a tree contain "blah1", "blah2"
+     *  complete("b") -> return "blah"
+     * 
+     * @param prefix The prefix we want to complete
+     * @return The unambiguous completion of the string.
+     */
+	public String complete(String prefix) {
+		return complete(prefix, root, "");
+	}    
+	
+	private String complete(String key, RadixTreeNode<T> node, String base) {
+        int i = 0;
+        int keylen = key.length();
+        int nodelen = node.getKey().length();
+
+        while (i < keylen && i < nodelen) {
+            if (key.charAt(i) != node.getKey().charAt(i)) {
+                break;
+            }
+            i++;
+        }
+
+        if (i == keylen && i <= nodelen) {
+            return base + node.getKey();
+        }
+        else if (nodelen == 0 || (i < keylen && i >= nodelen)) {
+            String beginning = key.substring(0, i);
+            String ending = key.substring(i, keylen);
+            for (RadixTreeNode<T> child : node.getChildern()) {
+                if (child.getKey().startsWith(ending.charAt(0) + "")) {
+                    return complete(ending, child, base + beginning);
+                }
+            }
+        }
+        
+        return "";
+    }
 }

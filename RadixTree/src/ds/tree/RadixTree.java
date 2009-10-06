@@ -90,5 +90,17 @@ public interface RadixTree<T> {
      * Return the size of the Radix tree
      * @return the size of the tree
      */
-    public long getSize();
+    public long getSize(); 
+    
+    /**
+     * Complete the a prefix to the point where ambiguity starts.
+     * 
+     *  Example:
+     *  If a tree contain "blah1", "blah2"
+     *  complete("b") -> return "blah"
+     * 
+     * @param prefix The prefix we want to complete
+     * @return The unambiguous completion of the string.
+     */
+    public String complete(String prefix);
 }

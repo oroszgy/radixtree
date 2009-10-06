@@ -34,6 +34,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ds.tree.DuplicateKeyException;
+import ds.tree.RadixTree;
 import ds.tree.RadixTreeImpl;
 
 /**
@@ -342,5 +343,23 @@ public class RadixTreeImplTest {
         trie.delete("appleshack");
         
         assertTrue(trie.getSize() == 1);
+    }    
+    
+    @Test
+    public void testComplete() {
+    	// create a new Trie
+    	RadixTree<String> trie = new RadixTreeImpl<String>();
+    	
+        trie.insert("apple", "apple");
+        trie.insert("appleshack", "appleshack");
+        trie.insert("applepie", "applepie");
+        trie.insert("applegold", "applegold");
+        trie.insert("applegood", "applegood");
+        
+        assertEquals("", trie.complete("z"));
+        assertEquals("apple", trie.complete("a"));
+        assertEquals("apple", trie.complete("app"));
+        assertEquals("appleshack", trie.complete("apples"));
+        assertEquals("applego", trie.complete("appleg"));
     }
 }
