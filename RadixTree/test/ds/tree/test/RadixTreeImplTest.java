@@ -26,7 +26,12 @@ THE SOFTWARE.
 
 package ds.tree.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 
@@ -254,8 +259,26 @@ public class RadixTreeImplTest {
         assertNotNull(trie.find("appleshackcream"));
         assertNotNull(trie.contains("ape"));
     }
-    
     @Test
+	public void testGetPrefixes() {
+		trie.insert("h", "h");
+		trie.insert("hey", "hey");
+		trie.insert("hell", "hell");
+		trie.insert("hello", "hello");
+		trie.insert("hat", "hat");
+		trie.insert("cat", "cat");
+		assertNotNull(trie.getPrefixes("helloworld"));
+		assertTrue(trie.getPrefixes("helloworld").contains("h"));
+		assertTrue(trie.getPrefixes("helloworld").contains("hell"));
+		assertTrue(trie.getPrefixes("helloworld").contains("hello"));
+		assertTrue(!trie.getPrefixes("helloworld").contains("he"));
+		assertTrue(!trie.getPrefixes("helloworld").contains("hat"));
+		assertTrue(!trie.getPrefixes("helloworld").contains("cat"));
+		assertTrue(!trie.getPrefixes("helloworld").contains("hey"));
+		assertNull(trie.getPrefixes("animal"));
+	}
+
+	@Test
     public void testContainsChildInsert() {
         trie.insert("apple", "apple");
         trie.insert("ape", "ape");
