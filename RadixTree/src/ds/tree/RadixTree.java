@@ -103,4 +103,12 @@ public interface RadixTree<T> {
      * @return The unambiguous completion of the string.
      */
     public String complete(String prefix);
+
+	/**
+	 * Search for all the keys, that are prefixes of the given value.
+	 * 
+	 * @param key
+	 * @return The list of values those keys are prefixes of the given value.
+	 */
+	public ArrayList<T> getPrefixes(String key);
 }

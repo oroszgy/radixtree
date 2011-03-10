@@ -443,4 +443,46 @@ public class RadixTreeImpl<T> implements RadixTree<T>, Formattable {
         
         return "";
     }
+
+	@Override
+	public ArrayList<T> getPrefixes(String key) {
+
+		if (root != null) {
+			Visitor<T, ArrayList<T>> visitor = new VisitorImpl<T, ArrayList<T>>(
+					new ArrayList<T>()) {
+
+				@Override
+				public void visit(String key, RadixTreeNode<T> parent,
+						RadixTreeNode<T> node) {
+					if (node.isReal()) {
+						result.add(node.getValue());
+					}
+
+				}
+			};
+
+			visitPrefixMatches(root, key, visitor);
+			if (visitor.getResult().size() > 0)
+				return visitor.getResult();
+		}
+		return null;
+	}
+
+	protected void visitPrefixMatches(RadixTreeNode<T> node, String key,
+			Visitor<T, ArrayList<T>> visitor) {
+
+		for (RadixTreeNode<T> child : node.getChildern()) {
+			int numberOfMatchingCharacters = child
+					.getNumberOfMatchingCharacters(key);
+			if (numberOfMatchingCharacters > 0
+					&& child.getKey().length() == numberOfMatchingCharacters) {
+
+				visitor.visit(key, node, child);
+
+				String newKey = key.substring(numberOfMatchingCharacters);
+				visitPrefixMatches(child, newKey, visitor);
+				break;
+			}
+		}
+	}
 }
