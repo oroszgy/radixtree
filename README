@@ -1,0 +1,16 @@
+A radix tree, Patricia trie/tree, or crit bit tree is a specialized set data structure based on the trie that is used to store a set of strings. In contrast with a regular trie, the edges of a Patricia trie are labelled with sequences of characters rather than with single characters. These can be strings of characters, bit strings such as integers or IP addresses, or generally arbitrary sequences of objects in lexicographical order. Sometimes the names radix tree and crit bit tree are only applied to trees storing integers and Patricia trie is retained for more general inputs, but the structure works the same way in all cases.
+
+For more information see http://en.wikipedia.org/wiki/Radix_tree
+
+I have created this Radix tree for a project that required fast searching of user name prefixes for a Google AJAX Search like interface. (tahseen.ur.rehman)
+
+Radix Tree gives fastest possible ways to search prefixes. For example it can quickly answer queries like "Find all user name starting with 'tahseen'"
+
+The database solution for this problem boils down to queries like select * from user where username like 'tahseen%'
+
+Database solution does not scale very well if you have a large number of concurrent users searching.
+
+A memory based Radix Tree scales very well.
+
+--
+This implementation of the Radix tree is also capable of finding those values in the tree, which belangs to a key sequence in the tree what are prefixes of a given value.
