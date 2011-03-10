@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 package ds.tree;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -41,7 +42,7 @@ import java.util.ArrayList;
  * @author Tahseen Ur Rehman 
  * email: tahseen.ur.rehman {at.spam.me.not} gmail.com
  */
-public interface RadixTree<T> {
+public interface RadixTree<T extends Serializable> {
     /**
      * Insert a new string key and its value to the tree.
      * 

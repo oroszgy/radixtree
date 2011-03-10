@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 package ds.tree;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,8 +35,13 @@ import java.util.List;
  * @email tahseen.ur.rehman {at.spam.me.not} gmail.com
  * @param <T>
  */
-class RadixTreeNode<T> {
-    private String key;
+class RadixTreeNode<T extends Serializable> implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7923289170995774649L;
+
+	private String key;
 
     private List<RadixTreeNode<T>> childern;
 

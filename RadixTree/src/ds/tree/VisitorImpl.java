@@ -1,5 +1,6 @@
 package ds.tree;
 
+import java.io.Serializable;
 
 /**
  * A simple standard implementation for a {@link visitor}.
@@ -7,7 +8,8 @@ package ds.tree;
  * @author Dennis Heidsiek 
  * @param <T,R>
  */
-public abstract class VisitorImpl<T, R> implements Visitor<T, R> {
+public abstract class VisitorImpl<T extends Serializable, R> implements
+		Visitor<T, R> {
 
     protected R result;
     

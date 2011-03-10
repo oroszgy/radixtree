@@ -26,6 +26,8 @@ THE SOFTWARE.
 
 package ds.tree;
 
+import java.io.Serializable;
+
 /**
  * The visitor interface that is used by {@link RadixTreeImpl} for perfroming
  * task on a searched node.
@@ -35,7 +37,7 @@ package ds.tree;
  * @author Dennis Heidsiek 
  * @param <T,R>
  */
-public interface Visitor<T, R> {
+public interface Visitor<T extends Serializable, R> {
     /**
      * This method gets called by {@link RadixTreeImpl#visit(String, Visitor) visit} 
      * when it finds a node matching the key given to it.

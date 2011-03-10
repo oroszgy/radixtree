@@ -26,6 +26,7 @@ THE SOFTWARE.
 
 package ds.tree;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Formattable;
 import java.util.Formatter;
@@ -40,9 +41,16 @@ import java.util.Queue;
  * @author Javid Jamae 
  * @author Dennis Heidsiek
  */
-public class RadixTreeImpl<T> implements RadixTree<T>, Formattable {
+public class RadixTreeImpl<T extends Serializable> implements RadixTree<T>,
+		Formattable,
+		Serializable {
     
-    protected RadixTreeNode<T> root;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5132036734117948612L;
+
+	protected RadixTreeNode<T> root;
 
     protected long size;
 
