@@ -35,7 +35,7 @@ import java.util.List;
  * @email tahseen.ur.rehman {at.spam.me.not} gmail.com
  * @param <T>
  */
-class RadixTreeNode<T extends Serializable> implements Serializable {
+public class RadixTreeNode<T extends Serializable> implements Serializable {
 	/**
 	 * 
 	 */
