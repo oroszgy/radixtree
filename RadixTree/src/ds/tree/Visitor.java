@@ -26,12 +26,13 @@ THE SOFTWARE.
 
 package ds.tree;
 
-import java.io.Serializable;
+import java.io.*;
 
 /**
- * The visitor interface that is used by {@link RadixTreeImpl} for perfroming
+ * The visitor interface is used by {@link RadixTreeImpl} for perfroming
  * task on a searched node.
  * 
+ * AUTHORS
  * @author Tahseen Ur Rehman (tahseen.ur.rehman {at.spam.me.not} gmail.com) 
  * @author Javid Jamae
  * @author Dennis Heidsiek 
